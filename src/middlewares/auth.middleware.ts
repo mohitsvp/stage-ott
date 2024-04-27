@@ -1,24 +1,29 @@
+import jwt, { Secret, JwtPayload } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
-import { decodeToken } from '../utils/jwtToken';
 
-interface RequestWithUser extends Request {
-    user: any; 
+export const SECRET_KEY: Secret = process.env.JWT_SECRET || "stage";
+
+export interface CustomRequest extends Request {
+ token: string | JwtPayload;
 }
 
-const authenticate = (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const token = req.cookies.token;
-    if (token) {
-        const user = decodeToken(token);
-        if (user) {
-            req.user = user;
-            next();
-        } else {
-            return res.sendStatus(403);
-        }
-    } else {
-        res.sendStatus(401);
-    }
-};
+export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
+ try {
+   const token = req.header('Authorization')?.replace('Bearer ', '');
 
+   if (!token) {
+    console.log('No Authorization header');
+    throw new Error("No Authorization header");
+  }
+
+   const decoded = jwt.verify(token, SECRET_KEY);
+   
+   (req as CustomRequest).token = decoded;
+
+   next();
+ } catch (err) {
+   res.status(401).send('Please authenticate');
+ }
+};
 
 export default authenticate

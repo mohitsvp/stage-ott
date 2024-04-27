@@ -1,10 +1,16 @@
 import mongoose, { Document, Model } from "mongoose";
 import bcrypt from "bcryptjs";
 
+type ItemType = "Movie" | "TVShow";
+
 interface IUser {
   username: string;
   password: string;
   checkPassword(password: string): Promise<boolean>;
+  myList: Array<{
+    kind: ItemType;
+    item: mongoose.Schema.Types.ObjectId;
+  }>;
 }
 
 interface IUserModel extends IUser, Document {}
@@ -26,7 +32,7 @@ const UserSchema = new mongoose.Schema(
     ],
     myList: [
       {
-        kind: String,
+        kind: { type: String, enum: ["Movie", "TVShow"] },
         item: { type: mongoose.Schema.Types.ObjectId, refPath: "myList.kind" },
       },
     ],
@@ -44,7 +50,10 @@ UserSchema.pre("save", async function (this: IUserModel, next) {
   next();
 });
 
-UserSchema.methods.checkPassword = function (this: IUserModel, password: string) {
+UserSchema.methods.checkPassword = function (
+  this: IUserModel,
+  password: string
+) {
   return bcrypt.compare(password, this.password);
 };
 

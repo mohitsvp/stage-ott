@@ -8,17 +8,22 @@ const EpisodeSchema = new mongoose.Schema({
   actors: [String],
 });
 
-const TVShowSchema = new mongoose.Schema({
-  id: String,
-  title: String,
-  description: String,
-  genres: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Genre",
-    },
-  ],
-  episodes: [EpisodeSchema],
-});
+const TVShowSchema = new mongoose.Schema(
+  {
+    title: String,
+    description: String,
+    genres: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Genre",
+      },
+    ],
+    episodes: [EpisodeSchema],
+  },
+  {
+    versionKey: false,
+    timestamps: true,
+  }
+);
 
 export default mongoose.model("TVShow", TVShowSchema);
