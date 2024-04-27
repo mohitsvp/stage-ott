@@ -6,7 +6,7 @@ const tvshowRouter = express.Router();
 tvshowRouter.get("/all", gettvshow);
 tvshowRouter.get("/:id", gettvshowById);
 tvshowRouter.post("/add", addtvshow);
-tvshowRouter.patch("/:id/update", updatetvshow);
+tvshowRouter.patch("/:id", updatetvshow);
 tvshowRouter.delete("/:id", removetvshow);
 
 export default tvshowRouter;

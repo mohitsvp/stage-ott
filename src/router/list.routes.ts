@@ -5,7 +5,7 @@ import { addToMyList, listMyItems, removeFromMyList } from "../controllers/list.
 const listRouter = express.Router();
 
 listRouter.post("/add", authenticate, addToMyList);
-listRouter.delete("/:id/remove", authenticate, removeFromMyList);
+listRouter.delete("/:id", authenticate, removeFromMyList);
 listRouter.get("/", authenticate, listMyItems);
 
 export default listRouter
