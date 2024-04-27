@@ -1,8 +1,18 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Model } from "mongoose";
+import bcrypt from "bcryptjs";
+
+interface IUser {
+  username: string;
+  password: string;
+  checkPassword(password: string): Promise<boolean>;
+}
+
+interface IUserModel extends IUser, Document {}
 
 const UserSchema = new mongoose.Schema(
   {
-    username: String,
+    username: { type: String, required: true },
+    password: { type: String, required: true },
     preferences: {
       favoriteGenres: [String],
       dislikedGenres: [String],
@@ -27,5 +37,15 @@ const UserSchema = new mongoose.Schema(
   }
 );
 
+UserSchema.pre("save", async function (this: IUserModel, next) {
+  if (this.isModified("password")) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+  next();
+});
 
-export default mongoose.model('User', UserSchema);
+UserSchema.methods.checkPassword = function (this: IUserModel, password: string) {
+  return bcrypt.compare(password, this.password);
+};
+
+export default mongoose.model<IUserModel>("User", UserSchema);
